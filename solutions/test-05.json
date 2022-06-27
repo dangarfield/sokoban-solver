@@ -1,0 +1,1 @@
+{"method": "astar", "grid": ["###########\n", "#         #\n", "#         #\n", "#  . . .  #\n", "#    B    #\n", "#    B    #\n", "#    B    #\n", "#         #\n", "#    &    #\n", "#         #\n", "###########"], "solution": "uluRdrUUULuRdddlUULdlU", "time": "0.24 seconds."}
