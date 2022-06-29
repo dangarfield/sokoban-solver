@@ -15,7 +15,7 @@ const setupInitialGrid = () => {
   grid.innerHTML = ''
   for (let wi = 0; wi < DATA.h; wi++) {
     const row = document.createElement('div')
-    row.classList.add('row', `row-${wi}`)
+    row.classList.add('row', 'gx-0', `row-${wi}`)
     for (let hi = 0; hi < DATA.w; hi++) {
       const cell = document.createElement('div')
       cell.classList.add('cell', `cell-${wi}-${hi}`)
