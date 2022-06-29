@@ -333,7 +333,7 @@ const calculate = async () => {
   document.querySelector('.next').classList.remove('d-none')
 }
 const loadLevelList = async () => {
-  const req = await fetch('/levels.txt')
+  const req = await fetch('levels.txt')
   const res = await req.text()
   const levels = res.split('Level:').filter(t => t !== '').map(l => {
     let grid = l.split('\n').filter(t => t !== '')
