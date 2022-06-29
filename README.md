@@ -6,7 +6,7 @@
 
 ![Sokoban Solver](https://i.ibb.co/ZSWtVfw/preview.gif)
 
-I wanted to help my 4 year get through some of the games on his little camera and I couldn't, so I adapted this and added an additional presentation format.
+I wanted to help my 4 year get through some of the `push the box` levelss on his little camera and I couldn't, so I adapted this and added an additional presentation format.
 
 All of the hard work relates to https://github.com/KnightofLuna/sokoban-solver.
 
