@@ -107,9 +107,15 @@ Level: caleb-10 | uLLLLulDDRurrrruullDurrddlLLLdlUrrrrrdddllULrULLurRuurrddLLLdl
 ####   #
    #####
 
-Level: caleb-11 |
+Level: caleb-11 | DuRlLUluRRRDrDDLdLLUUrDuRllUdrruulLddrU
 
-Level: caleb-12 |
+#######
+#. . .#
+# BBB #
+#.B&B.#
+# BBB #
+#. . .#
+#######
 
 Level: level-01 | RurrdLrdddlDLdllUUdRRRuruuulLLrdRD
 
