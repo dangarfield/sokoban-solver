@@ -1,0 +1,328 @@
+Level: caleb-01 | RlUUdLLrdD
+
+   ###
+   #.#
+#### #
+#. BB###
+### &B.#
+  #B####
+  #.#
+  ###
+
+Level: caleb-02 | DRdRRUrDllluRRlllldRRRdrUrUdlluR
+
+ #######
+##&##..#
+# BB B.#
+#   B  #
+####  .#
+   #####
+
+Level: caleb-03 | ldRddrrdrrUUluUruLdddrUUddddllulluuRRllddrrdrruulUU
+
+   #####
+####...#
+# &##B #
+# B    #
+## ##  #
+##   #B#
+ ###   #
+   #####
+
+Level: caleb-04 | rDDDlddlluuRRUruulDDDllddrUluRluRR
+
+  ####
+  #& #
+### B#
+# BB.##
+# B.. #
+# B.. #
+#   ###
+#####
+
+Level: caleb-05 | urRuulDrrrddLUruL
+
+ ####
+ #  #
+##  ###
+# B.  #
+# .B  #
+#& .B #
+###  ##
+  ####
+
+Level: caleb-06 | ullDDLLururrrddLLrrddlUruuullddLdRuuurrddLLdlUruLLrdrrrdLL
+
+    ####
+  ##   #
+###    #
+#.  B#&#
+#..B B #
+###. B #
+  ###  #
+    ####
+
+Level: caleb-07 | DDldlddrUrUruLdrrddlUluuuulldRurDurD
+
+#######
+#  &  #
+# BBB #
+##...##
+# . . #
+# B B #
+#  #  #
+#######
+
+
+Level: caleb-08 | llullddRUrrruLdllluuRDuurrDDrdLuLUlldRlddrUddrrUULUdrruLdlDlluRluurDDldR
+
+ #####
+## . #
+# B.B##
+#  .B #
+# B. &#
+# B.B##
+## . #
+# ####
+
+Level: caleb-09 | dlluLdlluUUrurrdLLrDDLrrdrruLLdLLrUUUrurrdLLLruLdrDurDDLLrrrdLLL
+
+########
+#..    #
+#..B B #
+#B#BBB##
+#..B B&#
+#..    #
+########
+
+
+Level: caleb-10 | uLLLLulDDRurrrruullDurrddlLLLdlUrrrrrdddllULrULLurRuurrddLLLdlU
+
+   #####
+####   #
+#..#B# #
+#    B #
+#.B  #&#
+#..BB# #
+####   #
+   #####
+
+Level: caleb-11 |
+
+Level: caleb-12 |
+
+Level: level-01 | RurrdLrdddlDLdllUUdRRRuruuulLLrdRD
+
+  #####
+###   #
+#.&B  #
+### B.#
+#.##B #
+# # . ##
+#B XBB.#
+#   .  #
+########
+
+Level: level-02 |
+
+    #####
+    #   #
+    #B  #
+  ###  B###
+  #  B  B #
+### # ### #     ######
+#   # ### #######  ..#
+# B  B             ..#
+##### #### #&####  ..#
+    #      ###  ######
+    ########
+
+Level: level-03 |
+
+############
+#..  #     ###
+#..  # B  B  #
+#..  #B####  #
+#..    & ##  #
+#..  # #  B ##
+###### ##B B #
+  # B  B B B #
+  #    #     #
+  ############
+
+Level: level-04 |
+
+####
+#  #########
+#    ##    #
+# BBB#     #
+##...# #BBB#
+ #...# #...#
+ #BBB  #...##
+ #    ##BBB #
+ ####### &  #
+       ######
+
+Level: level-05 |
+
+ #########
+ #   X   #
+ # ## ## #
+ #  X X  #
+###  #  ###
+#  .B#B.  #
+# #  &  # #
+#  .B#B.  #
+###  #  ###
+  #######
+
+Level: test-01 | rUUruLddRdrUU
+
+######
+#.  .#
+#    #
+# BB #
+#&   #
+######
+
+
+Level: test-02 | UUddrrrUU
+
+######
+#.  .#
+#    #
+#B  B#
+#&   #
+######
+
+Level: test-03 | LrdrdddLdllUUdRRurD
+
+ ######
+#.B&  #
+###   #
+#.##  #
+# #   ##
+#B XB  #
+#   .  #
+########
+
+Level: test-04 | llldRRR
+
+##########
+#    &   #
+#  B  .  #
+#        #
+##########
+
+Level: test-05 | uluRdrUUULuRdddlUULdlU
+
+###########
+#         #
+#         #
+#  . . .  #
+#    B    #
+#    B    #
+#    B    #
+#         #
+#    &    #
+#         #
+###########
+
+
+Level: test-06 | dlluRdrUUUddrruuulL
+
+#######
+# .   #
+# # # #
+# # # #
+# B&  #
+#     #
+#######
+
+Level: test-07 | LUUUluRddddLdlUUUUluR
+
+########
+#  . . #
+#    # #
+## # # #
+ #  B  #
+ #  B& #
+ #     #
+ #######
+
+
+Level: test-08 | llDDDDDDldddrruuLuuuuuuurrdLulDDDDDDlllddrrUdlluurRdddrruuLUUUUUUluRdddddddrddlluUdlluurRdrUUUUUU
+
+  ######
+  # ..&#
+  # BB #
+  ## ###
+   # #
+   # #
+#### #
+#    ##
+# #   #
+#   # #
+###   #
+  #####
+
+
+Level: test-09 | dllURdrU
+
+####
+#  ####
+# . . #
+# BBX&#
+##    #
+ ######
+
+
+Level: test-10 |
+
+####
+# .#
+#  ###
+#X&  #
+#  B #
+#  ###
+####
+
+
+Level: test-11 | rrdL
+
+#####
+#&  ##
+#.BX #
+#  # #
+#    #
+######
+
+
+Level: test-12 | rrDulldRRurDrddllURuulD
+
+######
+#&   ##
+# BB  #
+# #. .#
+#     #
+#######
+
+
+Level: test-13 | drrdrruLLulldRururDDrddlluUrrdL
+
+  ####
+###  #
+#& .B##
+#   B #
+# #.  #
+#     #
+#######
+
+Level: test-14 | L
+
+########
+#      #
+# .XXB&#
+#      #
+#####  #
+   ####
