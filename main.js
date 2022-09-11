@@ -60,6 +60,18 @@ const bindClicks = () => {
     console.log('DATA', DATA)
   })
 
+  document.querySelector('.up').addEventListener('click', function (event) {
+    executeManualMove('u')
+  })
+  document.querySelector('.down').addEventListener('click', function (event) {
+    executeManualMove('d')
+  })
+  document.querySelector('.left').addEventListener('click', function (event) {
+    executeManualMove('l')
+  })
+  document.querySelector('.right').addEventListener('click', function (event) {
+    executeManualMove('r')
+  })
   document.querySelector('.new').addEventListener('click', async function (event) {
     const levelName = window.prompt('New grid name', DATA.current)
     if (levelName !== null) {
@@ -329,6 +341,7 @@ const calculate = async () => {
 
   populateSolutionStates()
   document.querySelector('.calc').removeAttribute('disabled')
+  document.querySelector('.calc').classList.add('d-none')
   document.querySelector('.prev').classList.remove('d-none')
   document.querySelector('.next').classList.remove('d-none')
 }
