@@ -60,7 +60,7 @@ const bindClicks = () => {
     console.log('DATA', DATA)
   })
 
-  document.querySelector('.up').addEventListener('click', function (event) { window.alert('u'); executeManualMove('u') })
+  document.querySelector('.up').addEventListener('click', function (event) { executeManualMove('u') })
   document.querySelector('.down').addEventListener('click', function (event) { executeManualMove('d') })
   document.querySelector('.left').addEventListener('click', function (event) { executeManualMove('l') })
   document.querySelector('.right').addEventListener('click', function (event) { executeManualMove('r') })
