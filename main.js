@@ -103,46 +103,47 @@ const bindClicks = () => {
   })
 
   // Speech
-//   const SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition
-//   const SpeechGrammarList = window.SpeechGrammarList || webkitSpeechGrammarList
-//   const SpeechRecognitionEvent = window.SpeechRecognitionEvent || webkitSpeechRecognitionEvent
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+  const SpeechGrammarList = window.SpeechGrammarList || window.webkitSpeechGrammarList
+  // const SpeechRecognitionEvent = window.SpeechRecognitionEvent || webkitSpeechRecognitionEvent
 
-//   const directions = [ 'up', 'down', 'left', 'right', 'restart', 'start again' ]
-//   const grammar = '#JSGF V1.0; grammar direction; public <direction> = ' + directions.join(' | ') + ' ;'
+  const directions = [ 'up', 'down', 'left', 'right', 'restart', 'start again' ]
+  const grammar = '#JSGF V1.0; grammar direction; public <direction> = ' + directions.join(' | ') + ' ;'
 
-//   const recognition = new SpeechRecognition()
-//   const speechRecognitionList = new SpeechGrammarList()
-//   speechRecognitionList.addFromString(grammar, 1)
+  const recognition = new SpeechRecognition()
+  const speechRecognitionList = new SpeechGrammarList()
+  speechRecognitionList.addFromString(grammar, 1)
 
-//   recognition.grammars = speechRecognitionList
-//   recognition.continuous = true
-//   recognition.lang = 'en-US'
-//   recognition.interimResults = false
-//   recognition.maxAlternatives = 0
+  recognition.grammars = speechRecognitionList
+  recognition.continuous = true
+  recognition.lang = 'en-US'
+  recognition.interimResults = false
+  recognition.maxAlternatives = 0
 
-//   recognition.start()
+  recognition.start()
 
-//   recognition.onresult = function (event) {
-//     console.log('recognition.onresult', event)
-//     const lastResult = event.results[event.results.length - 1]
-//     const direction = lastResult[lastResult.length - 1].transcript
-//     const isFinal = lastResult.isFinal
-//     // diagnostic.textContent = 'Result received: ' + color + '.'
-//     // bg.style.backgroundColor = color
-//     console.log('Confidence: ' + event.results[0][0].confidence, direction, isFinal)
+  recognition.onresult = function (event) {
+    // TODO - This is too slow to wait for the 'onresult' event
+    console.log('recognition.onresult', event)
+    const lastResult = event.results[event.results.length - 1]
+    const direction = lastResult[lastResult.length - 1].transcript
+    const isFinal = lastResult.isFinal
+    // diagnostic.textContent = 'Result received: ' + color + '.'
+    // bg.style.backgroundColor = color
+    console.log('Confidence: ' + event.results[0][0].confidence, direction, isFinal)
 
-//     if (direction.includes('left')) {
-//       executeManualMove('l')
-//     } else if (direction.includes('right')) {
-//       executeManualMove('r')
-//     } else if (direction.includes('up')) {
-//       executeManualMove('u')
-//     } else if (direction.includes('down')) {
-//       executeManualMove('d')
-//     } else if (direction.includes('start')) {
-//       loadLevel(DATA.current)
-//     }
-//   }
+    if (direction.includes('left')) {
+      executeManualMove('l')
+    } else if (direction.includes('right')) {
+      executeManualMove('r')
+    } else if (direction.includes('up')) {
+      executeManualMove('u')
+    } else if (direction.includes('down')) {
+      executeManualMove('d')
+    } else if (direction.includes('start')) {
+      loadLevel(DATA.current)
+    }
+  }
 }
 const save = async () => {
   const text = gridToText()
