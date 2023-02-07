@@ -107,7 +107,7 @@ const bindClicks = () => {
   const SpeechGrammarList = window.SpeechGrammarList || window.webkitSpeechGrammarList
   // const SpeechRecognitionEvent = window.SpeechRecognitionEvent || webkitSpeechRecognitionEvent
 
-  const directions = [ 'up', 'down', 'left', 'right', 'restart', 'start again' ]
+  const directions = ['up', 'down', 'left', 'right', 'restart', 'start again']
   const grammar = '#JSGF V1.0; grammar direction; public <direction> = ' + directions.join(' | ') + ' ;'
 
   const recognition = new SpeechRecognition()
@@ -153,7 +153,7 @@ const save = async () => {
   const level = savedLevels.find(l => l.name === DATA.current)
   console.log('level', level)
   if (level === undefined) {
-    const newLevel = {name: DATA.current, grid: text, solution: ''}
+    const newLevel = { name: DATA.current, grid: text, solution: '' }
     savedLevels.push(newLevel)
   } else {
     level.grid = text
@@ -177,20 +177,20 @@ const getPlayerPos = (state) => {
   for (let wi = 0; wi < DATA.h; wi++) {
     for (let hi = 0; hi < DATA.w; hi++) {
       if (state[wi][hi].includes('player')) {
-        return {y: wi, x: hi}
+        return { y: wi, x: hi }
       }
     }
   }
 }
 const getTargetPos = (x, y, direction) => {
   if (direction.toLowerCase() === 'u') {
-    return {player: {x: x, y: y - 1}, box: {x: x, y: y - 2}}
+    return { player: { x, y: y - 1 }, box: { x, y: y - 2 } }
   } else if (direction.toLowerCase() === 'd') {
-    return {player: {x: x, y: y + 1}, box: {x: x, y: y + 2}}
+    return { player: { x, y: y + 1 }, box: { x, y: y + 2 } }
   } else if (direction.toLowerCase() === 'l') {
-    return {player: {x: x - 1, y: y}, box: {x: x - 2, y: y}}
+    return { player: { x: x - 1, y }, box: { x: x - 2, y } }
   } else if (direction.toLowerCase() === 'r') {
-    return {player: {x: x + 1, y: y}, box: {x: x + 2, y: y}}
+    return { player: { x: x + 1, y }, box: { x: x + 2, y } }
   }
 }
 const isEnd = (state) => {
@@ -265,7 +265,7 @@ const populateSolutionStates = () => {
   console.log('DATA.solution END', DATA.solution)
 }
 const gridToText = () => {
-  let textList = []
+  const textList = []
   for (let wi = 0; wi < DATA.h; wi++) {
     let text = []
     for (let hi = 0; hi < DATA.w; hi++) {
@@ -324,7 +324,7 @@ const calculate = async () => {
     console.log('savedLevels', savedLevels, savedLevel)
 
     if (savedLevel === undefined) {
-      savedLevels.push({name: DATA.current, grid: gridText, solution})
+      savedLevels.push({ name: DATA.current, grid: gridText, solution })
     } else {
       savedLevel.solution = solution
     }
@@ -354,7 +354,7 @@ const loadLevelList = async () => {
     if (grid.length === 0) {
       grid = Array(8).fill(' '.repeat(8))
     }
-    return {name, solution, grid}
+    return { name, solution, grid }
   })
 
   if (window.localStorage.getItem('sok') === null) {
@@ -419,9 +419,10 @@ const loadLevel = async (levelName) => {
   document.querySelector('.load-select').value = levelName
   document.querySelector('.prev').classList.add('d-none')
   document.querySelector('.next').classList.add('d-none')
+  document.querySelector('.calc').classList.remove('d-none')
 }
 const initSolver = async () => {
-  let pyodide = await window.loadPyodide()
+  const pyodide = await window.loadPyodide()
   await pyodide.loadPackage(['numpy'])
 
   const solverCodeText = await (await fetch('solver.py')).text()
