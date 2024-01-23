@@ -283,6 +283,9 @@ def aStarSearch():
     count = 0
     while frontier:
         # count = count+1
+        # print('frontier',frontier)
+        if frontier.isEmpty():
+            return 'x'
         node = frontier.pop()
         node_action = actions.pop()
         if isEndState(node[-1][-1]):

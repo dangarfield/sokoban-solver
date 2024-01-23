@@ -325,18 +325,23 @@ const calculate = async () => {
 
     const solution = solveSokodanRes.toJs()[0]
 
-    const savedLevels = JSON.parse(window.localStorage.getItem('sok'))
-    const savedLevel = savedLevels.find(l => l.name === DATA.current)
-    console.log('savedLevels', savedLevels, savedLevel)
-
-    if (savedLevel === undefined) {
-      savedLevels.push({ name: DATA.current, grid: gridText, solution })
+    if(solution === 'x') {
+      window.alert('No solution found')
     } else {
-      savedLevel.solution = solution
+      const savedLevels = JSON.parse(window.localStorage.getItem('sok'))
+      const savedLevel = savedLevels.find(l => l.name === DATA.current)
+      console.log('savedLevels', savedLevels, savedLevel)
+
+      if (savedLevel === undefined) {
+        savedLevels.push({ name: DATA.current, grid: gridText, solution })
+      } else {
+        savedLevel.solution = solution
+      }
+      window.localStorage.setItem('sok', JSON.stringify(savedLevels))
+      level.solution = solution
+      DATA.solution.directions = solution
     }
-    window.localStorage.setItem('sok', JSON.stringify(savedLevels))
-    level.solution = solution
-    DATA.solution.directions = solution
+    
   }
 
   populateSolutionStates()
