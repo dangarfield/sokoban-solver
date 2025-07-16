@@ -2,6 +2,8 @@
 
 > This is a web wrapper, playable sokoban game, editor and visualiser for sokoban solving, using Python through Web Assembly. All client side
 
+> Updated to include javascript solver also
+
 > Live application - [https://dangarfield.github.io/sokoban-solver/](https://dangarfield.github.io/sokoban-solver/)
 
 ![Sokoban Solver](https://i.ibb.co/ZSWtVfw/preview.gif)

@@ -1,3 +1,6 @@
+// Toggle between Python (false) and JavaScript (true) solver
+const USE_JS_SOLVER = true;
+
 const DATA = {
   w: 10,
   h: 10,
@@ -308,7 +311,10 @@ const sleep = (ms) => {
 
 const calculate = async () => {
   console.log('calculate')
-  document.querySelector('.calc').setAttribute('disabled', 'disabled')
+  const calcButton = document.querySelector('.calc')
+  calcButton.setAttribute('disabled', 'disabled')
+  calcButton.textContent = 'Solving...'
+  
   await sleep(100) // To allow button to be disabled
   const gridText = gridToText()
   const gridWidth = gridText[0].length
@@ -318,37 +324,108 @@ const calculate = async () => {
   if (gridText.join('\n') === savedGrid.join('\n') && level.solution !== '') {
     console.log('calcuate cached', gridText, savedGrid)
     DATA.solution.directions = level.solution
-  } else {
-    console.log('calcuate', gridText, savedGrid)
-    const solveSokodanRes = DATA.solveSokodan('astar', gridText)
-    console.log('solveSokodanRes', solveSokodanRes, solveSokodanRes.toJs())
-
-    const solution = solveSokodanRes.toJs()[0]
-
-    if(solution === 'x') {
-      window.alert('No solution found')
-    } else {
-      const savedLevels = JSON.parse(window.localStorage.getItem('sok'))
-      const savedLevel = savedLevels.find(l => l.name === DATA.current)
-      console.log('savedLevels', savedLevels, savedLevel)
-
-      if (savedLevel === undefined) {
-        savedLevels.push({ name: DATA.current, grid: gridText, solution })
-      } else {
-        savedLevel.solution = solution
-      }
-      window.localStorage.setItem('sok', JSON.stringify(savedLevels))
-      level.solution = solution
-      DATA.solution.directions = solution
-    }
     
+    populateSolutionStates()
+    calcButton.removeAttribute('disabled')
+    calcButton.textContent = USE_JS_SOLVER ? 'Solve (JS)' : 'Solve (Python)'
+    calcButton.classList.add('d-none')
+    document.querySelector('.prev').classList.remove('d-none')
+    document.querySelector('.next').classList.remove('d-none')
+    return
   }
 
-  populateSolutionStates()
-  document.querySelector('.calc').removeAttribute('disabled')
-  document.querySelector('.calc').classList.add('d-none')
-  document.querySelector('.prev').classList.remove('d-none')
-  document.querySelector('.next').classList.remove('d-none')
+  console.log('calcuate', gridText, savedGrid)
+  
+  let solution;
+  let timeoutId;
+  let isTimedOut = false;
+  
+  // Create a timeout promise
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      isTimedOut = true;
+      reject(new Error('Calculation timeout'));
+    }, 5000); // 5 seconds timeout
+  });
+  
+  try {
+    let solverPromise;
+    
+    if (USE_JS_SOLVER) {
+      // Use JavaScript solver
+      console.log('Using JavaScript solver');
+      solverPromise = new Promise((resolve, reject) => {
+        try {
+          const [solutionResult, timeStr] = solveSokoban('astar', gridText);
+          console.log('JS solver result:', solutionResult, 'Time:', timeStr);
+          resolve(solutionResult);
+        } catch (error) {
+          console.error('JavaScript solver error:', error);
+          reject(error);
+        }
+      });
+    } else {
+      // Use Python solver (original)
+      console.log('Using Python solver');
+      solverPromise = new Promise((resolve, reject) => {
+        try {
+          const solveSokodanRes = DATA.solveSokodan('astar', gridText);
+          console.log('solveSokodanRes', solveSokodanRes, solveSokodanRes.toJs());
+          resolve(solveSokodanRes.toJs()[0]);
+        } catch (error) {
+          console.error('Python solver error:', error);
+          reject(error);
+        }
+      });
+    }
+    
+    // Race between solver and timeout
+    solution = await Promise.race([solverPromise, timeoutPromise]);
+    
+    // Clear timeout if solver finished first
+    clearTimeout(timeoutId);
+    
+  } catch (error) {
+    clearTimeout(timeoutId);
+    
+    if (isTimedOut) {
+      console.log('Solver timed out after 5 seconds');
+      window.alert('Calculation timed out after 5 seconds. This puzzle may be too complex or have no solution.');
+      solution = 'timeout';
+    } else {
+      console.error('Solver error:', error);
+      solution = 'x';
+    }
+  }
+
+  // Reset button state
+  calcButton.removeAttribute('disabled')
+  calcButton.textContent = USE_JS_SOLVER ? 'Solve (JS)' : 'Solve (Python)'
+
+  if (solution === 'x') {
+    window.alert('No solution found')
+  } else if (solution === 'timeout') {
+    // Already handled above, just return
+    return
+  } else {
+    const savedLevels = JSON.parse(window.localStorage.getItem('sok'))
+    const savedLevel = savedLevels.find(l => l.name === DATA.current)
+    console.log('savedLevels', savedLevels, savedLevel)
+
+    if (savedLevel === undefined) {
+      savedLevels.push({ name: DATA.current, grid: gridText, solution })
+    } else {
+      savedLevel.solution = solution
+    }
+    window.localStorage.setItem('sok', JSON.stringify(savedLevels))
+    level.solution = solution
+    DATA.solution.directions = solution
+    
+    populateSolutionStates()
+    calcButton.classList.add('d-none')
+    document.querySelector('.prev').classList.remove('d-none')
+    document.querySelector('.next').classList.remove('d-none')
+  }
 }
 const loadLevelList = async () => {
   const req = await fetch('levels.txt')
@@ -441,7 +518,7 @@ const initSolver = async () => {
   // console.log('solverCodeText', solverCodeText)
   const solveSokodan = pyodide.runPython(solverCodeText)
   document.querySelector('.calc').removeAttribute('disabled')
-  document.querySelector('.calc').textContent = 'Solve'
+  document.querySelector('.calc').textContent = 'Solve (Python)'
   return solveSokodan
 }
 
@@ -452,6 +529,13 @@ const init = async () => {
   await loadLevel(DATA.levels[0].name)
   bindClicks()
 
-  DATA.solveSokodan = await initSolver()
+  if (USE_JS_SOLVER) {
+    console.log('Using JavaScript solver - no initialization needed');
+    document.querySelector('.calc').removeAttribute('disabled')
+    document.querySelector('.calc').textContent = 'Solve (JS)'
+  } else {
+    console.log('Initializing Python solver...');
+    DATA.solveSokodan = await initSolver()
+  }
 }
 init()
