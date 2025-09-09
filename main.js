@@ -37,7 +37,8 @@ const setupInitialGrid = () => {
       case 'wall': event.target.setAttribute('data-type', 'block'); break
       case 'block': event.target.setAttribute('data-type', 'target'); break
       case 'target': event.target.setAttribute('data-type', 'player'); break
-      case 'player': event.target.setAttribute('data-type', 'floor'); break
+      case 'player': event.target.setAttribute('data-type', 'target-block'); break
+      case 'target-block': event.target.setAttribute('data-type', 'floor'); break
     }
   }))
 }
