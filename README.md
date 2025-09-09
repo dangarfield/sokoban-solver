@@ -25,6 +25,7 @@ All of the hard work relates to https://github.com/KnightofLuna/sokoban-solver.
 - New grids can be added and existing grids overwritten by saving. All saved grids are stored in your browser's `localStorage`
 - Play the game with `WASD` or `ArrowKeys`, press `Escape` of `space` to restart from the saved map
 - Click `Solve` to solve the game and interate through the solution with `Prev` and `Next` buttons - Solutions are cached, but some solves take a long timeß
+- Click 'Share' to copy the url to deep link with your friends
 
 ### Algorithms
 

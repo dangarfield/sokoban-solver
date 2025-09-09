@@ -65,6 +65,10 @@ const bindClicks = () => {
     console.log('DATA', DATA)
   })
 
+  document.querySelector('.export').addEventListener('click', function (event) {
+    exportToUrl()
+  })
+
   document.querySelector('.up').addEventListener('click', function (event) { executeManualMove('u') })
   document.querySelector('.down').addEventListener('click', function (event) { executeManualMove('d') })
   document.querySelector('.left').addEventListener('click', function (event) { executeManualMove('l') })
@@ -172,6 +176,125 @@ const save = async () => {
   window.localStorage.setItem('sok', JSON.stringify(savedLevels))
   await loadLevelList()
 }
+
+const exportToUrl = () => {
+  const state = {
+    name: DATA.current,
+    width: DATA.w,
+    height: DATA.h,
+    grid: gridToText()
+  }
+
+  // Compress the grid data by encoding it
+  const gridString = state.grid.join('')
+  const encodedGrid = btoa(gridString) // Base64 encode
+
+  const params = new URLSearchParams()
+  params.set('name', state.name)
+  params.set('w', state.width.toString())
+  params.set('h', state.height.toString())
+  params.set('grid', encodedGrid)
+
+  const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`
+
+  // Update the browser URL without reloading the page
+  window.history.pushState({ level: state.name }, '', url)
+
+  // Copy to clipboard
+  navigator.clipboard.writeText(url).then(() => {
+    console.log('URL updated and copied to clipboard:', url)
+    alert('Level URL updated and copied to clipboard!')
+  }).catch(err => {
+    console.error('Failed to copy URL:', err)
+    // Fallback: show the URL in a prompt
+    prompt('Copy this URL:', url)
+  })
+
+  return url
+}
+
+const importFromUrl = () => {
+  const params = new URLSearchParams(window.location.search)
+
+  if (!params.has('grid')) {
+    return false // No grid data in URL
+  }
+
+  try {
+    const name = params.get('name') || 'Imported Level'
+    const width = parseInt(params.get('w')) || 10
+    const height = parseInt(params.get('h')) || 10
+    const encodedGrid = params.get('grid')
+
+    // Decode the grid data
+    const gridString = atob(encodedGrid)
+    const grid = []
+
+    for (let i = 0; i < height; i++) {
+      const row = gridString.slice(i * width, (i + 1) * width)
+      grid.push(row)
+    }
+
+    // Create the imported level object
+    const importedLevel = {
+      name: name,
+      grid: grid,
+      solution: ''
+    }
+
+    // Check if level already exists in DATA.levels
+    const existingLevelIndex = DATA.levels.findIndex(l => l.name === name)
+    if (existingLevelIndex !== -1) {
+      // Update existing level
+      DATA.levels[existingLevelIndex] = importedLevel
+    } else {
+      // Add new level to the list
+      DATA.levels.push(importedLevel)
+      DATA.levels.sort((a, b) => a.name.localeCompare(b.name))
+    }
+
+    // Update the select dropdown
+    const loadSelect = document.querySelector('.load-select')
+    loadSelect.innerHTML = ''
+    DATA.levels.forEach(level => {
+      const option = document.createElement('option')
+      option.setAttribute('value', level.name)
+      option.innerText = level.name
+      loadSelect.append(option)
+    })
+
+    // Update DATA with imported level
+    DATA.current = name
+    DATA.w = width
+    DATA.h = height
+
+    // Setup grid and load the imported state
+    setupInitialGrid()
+
+    for (let wi = 0; wi < height; wi++) {
+      const row = grid[wi].split('')
+      for (let hi = 0; hi < width; hi++) {
+        const cellValue = row[hi] || ' '
+        const dataType = convertToDataType(cellValue)
+        document.querySelector(`.cell-${wi}-${hi}`).setAttribute('data-type', dataType)
+      }
+    }
+
+    // Select the imported level in the dropdown
+    loadSelect.value = name
+
+    // Reset solution UI
+    document.querySelector('.prev').classList.add('d-none')
+    document.querySelector('.next').classList.add('d-none')
+    document.querySelector('.calc').classList.remove('d-none')
+
+    console.log('Imported level from URL:', name, width, height)
+    return true
+  } catch (error) {
+    console.error('Failed to import from URL:', error)
+    return false
+  }
+}
 const getGridState = () => {
   const state = []
   for (let wi = 0; wi < DATA.h; wi++) {
@@ -219,7 +342,7 @@ const executeManualMove = (direction) => {
   displayState(nextState)
   if (isEnd(nextState)) {
     setTimeout(function () {
-    //   window.alert('You win')
+      //   window.alert('You win')
       const currentLevelIndex = DATA.levels.findIndex(l => l.name === DATA.current)
       console.log('currentLevelIndex', currentLevelIndex)
       if (currentLevelIndex + 1 < DATA.levels.length) {
@@ -229,7 +352,7 @@ const executeManualMove = (direction) => {
   }
 }
 const calculateNextStateFromDirection = (direction, currentState) => {
-//   console.log('currentState', currentState)
+  //   console.log('currentState', currentState)
   const nextState = JSON.parse(JSON.stringify(currentState))
   const playerPos = getPlayerPos(nextState)
   const targetPos = getTargetPos(playerPos.x, playerPos.y, direction)
@@ -300,7 +423,7 @@ const gridToText = () => {
   return textList
 }
 const displayState = (state) => {
-//   console.log('displayState', state)
+  //   console.log('displayState', state)
   for (let wi = 0; wi < state.length; wi++) {
     const row = state[wi]
     for (let hi = 0; hi < row.length; hi++) {
@@ -318,7 +441,7 @@ const calculate = async () => {
   const calcButton = document.querySelector('.calc')
   calcButton.setAttribute('disabled', 'disabled')
   calcButton.textContent = 'Solving...'
-  
+
   await sleep(100) // To allow button to be disabled
   const gridText = gridToText()
   const gridWidth = gridText[0].length
@@ -328,7 +451,7 @@ const calculate = async () => {
   if (gridText.join('\n') === savedGrid.join('\n') && level.solution !== '') {
     console.log('calcuate cached', gridText, savedGrid)
     DATA.solution.directions = level.solution
-    
+
     populateSolutionStates()
     calcButton.removeAttribute('disabled')
     calcButton.textContent = USE_JS_SOLVER ? 'Solve (JS)' : 'Solve (Python)'
@@ -339,11 +462,11 @@ const calculate = async () => {
   }
 
   console.log('calcuate', gridText, savedGrid)
-  
+
   let solution;
   let timeoutId;
   let isTimedOut = false;
-  
+
   // Create a timeout promise
   const timeoutPromise = new Promise((_, reject) => {
     timeoutId = setTimeout(() => {
@@ -351,10 +474,10 @@ const calculate = async () => {
       reject(new Error('Calculation timeout'));
     }, 5000); // 5 seconds timeout
   });
-  
+
   try {
     let solverPromise;
-    
+
     if (USE_JS_SOLVER) {
       // Use JavaScript solver
       console.log('Using JavaScript solver');
@@ -382,16 +505,16 @@ const calculate = async () => {
         }
       });
     }
-    
+
     // Race between solver and timeout
     solution = await Promise.race([solverPromise, timeoutPromise]);
-    
+
     // Clear timeout if solver finished first
     clearTimeout(timeoutId);
-    
+
   } catch (error) {
     clearTimeout(timeoutId);
-    
+
     if (isTimedOut) {
       console.log('Solver timed out after 5 seconds');
       window.alert('Calculation timed out after 5 seconds. This puzzle may be too complex or have no solution.');
@@ -424,7 +547,7 @@ const calculate = async () => {
     window.localStorage.setItem('sok', JSON.stringify(savedLevels))
     level.solution = solution
     DATA.solution.directions = solution
-    
+
     populateSolutionStates()
     calcButton.classList.add('d-none')
     document.querySelector('.prev').classList.remove('d-none')
@@ -530,7 +653,15 @@ const init = async () => {
   console.log('init')
   setupInitialGrid()
   await loadLevelList()
-  await loadLevel(DATA.levels[0].name)
+
+  // Check if there's a level to import from URL
+  const importedFromUrl = importFromUrl()
+
+  if (!importedFromUrl) {
+    // Load default level if no URL import
+    await loadLevel(DATA.levels[0].name)
+  }
+
   bindClicks()
 
   if (USE_JS_SOLVER) {
