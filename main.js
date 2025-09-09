@@ -509,33 +509,24 @@ const calculate = async () => {
   console.log('calcuate', gridText, savedGrid)
 
   let solution;
-  let timeoutId;
-  let isTimedOut = false;
-
-  // Create a timeout promise
-  const timeoutPromise = new Promise((_, reject) => {
-    timeoutId = setTimeout(() => {
-      isTimedOut = true;
-      reject(new Error('Calculation timeout'));
-    }, 5000); // 5 seconds timeout
-  });
 
   try {
     let solverPromise;
 
     if (USE_JS_SOLVER) {
-      // Use JavaScript solver
+      // Use JavaScript solver with progress feedback
       console.log('Using JavaScript solver');
-      solverPromise = new Promise((resolve, reject) => {
-        try {
-          const [solutionResult, timeStr] = solveSokoban('astar', gridText);
+      
+      const progressCallback = (progress) => {
+        const { explored, frontier, iterations, timeElapsed } = progress;
+        calcButton.textContent = `Solving... ${timeElapsed}s (${explored} explored)`;
+      };
+      
+      solverPromise = solveSokoban('astar', gridText, progressCallback, 60000)
+        .then(([solutionResult, timeStr]) => {
           console.log('JS solver result:', solutionResult, 'Time:', timeStr);
-          resolve(solutionResult);
-        } catch (error) {
-          console.error('JavaScript solver error:', error);
-          reject(error);
-        }
-      });
+          return solutionResult;
+        });
     } else {
       // Use Python solver (original)
       console.log('Using Python solver');
@@ -551,21 +542,16 @@ const calculate = async () => {
       });
     }
 
-    // Race between solver and timeout
-    solution = await Promise.race([solverPromise, timeoutPromise]);
-
-    // Clear timeout if solver finished first
-    clearTimeout(timeoutId);
+    solution = await solverPromise;
 
   } catch (error) {
-    clearTimeout(timeoutId);
-
-    if (isTimedOut) {
-      console.log('Solver timed out after 5 seconds');
-      window.alert('Calculation timed out after 5 seconds. This puzzle may be too complex or have no solution.');
+    console.error('Solver error:', error);
+    
+    if (error.message.includes('timeout')) {
+      console.log('Solver timed out after 30 seconds');
+      window.alert('Calculation timed out after 30 seconds. This puzzle may be too complex or have no solution.');
       solution = 'timeout';
     } else {
-      console.error('Solver error:', error);
       solution = 'x';
     }
   }

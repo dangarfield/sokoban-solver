@@ -385,7 +385,7 @@ function uniformCostSearch() {
     return null;
 }
 
-function aStarSearch() {
+async function aStarSearch(progressCallback = null, timeoutMs = 30000) {
     const beginBox = posOfBoxes(gameState);
     const beginPlayer = posOfPlayer(gameState);
     
@@ -396,8 +396,30 @@ function aStarSearch() {
     const actions = new PriorityQueue();
     actions.push([0], heuristic(beginPlayer, startState[1]));
     let count = 0;
+    let lastYieldTime = performance.now();
+    const startTime = performance.now();
     
     while (!frontier.isEmpty()) {
+        // Check for timeout
+        const currentTime = performance.now();
+        if (currentTime - startTime > timeoutMs) {
+            throw new Error('Solver timeout - puzzle may be too complex');
+        }
+        
+        // Yield control to UI periodically
+        if (currentTime - lastYieldTime > 50) { // Yield every 50ms
+            if (progressCallback) {
+                progressCallback({
+                    explored: exploredSet.size,
+                    frontier: frontier.heap.length,
+                    iterations: count,
+                    timeElapsed: Math.round((currentTime - startTime) / 1000)
+                });
+            }
+            await new Promise(resolve => setTimeout(resolve, 0));
+            lastYieldTime = performance.now();
+        }
+        
         const node = frontier.pop();
         const nodeAction = actions.pop();
         
@@ -456,7 +478,7 @@ function transferToGameState(layout) {
     return gameStateArray;
 }
 
-function solveSokoban(method, layout) {
+async function solveSokoban(method, layout, progressCallback = null, timeoutMs = 30000) {
     console.log('solve');
     const timeStart = performance.now();
     
@@ -466,21 +488,26 @@ function solveSokoban(method, layout) {
     
     let solution = '';
     
-    switch (method) {
-        case 'astar':
-            solution = aStarSearch();
-            break;
-        case 'dfs':
-            solution = depthFirstSearch();
-            break;
-        case 'bfs':
-            solution = breadthFirstSearch();
-            break;
-        case 'ucs':
-            solution = uniformCostSearch();
-            break;
-        default:
-            throw new Error('Invalid method.');
+    try {
+        switch (method) {
+            case 'astar':
+                solution = await aStarSearch(progressCallback, timeoutMs);
+                break;
+            case 'dfs':
+                solution = depthFirstSearch(); // Keep sync for now
+                break;
+            case 'bfs':
+                solution = breadthFirstSearch(); // Keep sync for now
+                break;
+            case 'ucs':
+                solution = uniformCostSearch(); // Keep sync for now
+                break;
+            default:
+                throw new Error('Invalid method.');
+        }
+    } catch (error) {
+        console.error('Solver error:', error);
+        throw error;
     }
     
     const timeEnd = performance.now();
