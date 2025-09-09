@@ -38,7 +38,8 @@ const setupInitialGrid = () => {
       case 'block': event.target.setAttribute('data-type', 'target'); break
       case 'target': event.target.setAttribute('data-type', 'player'); break
       case 'player': event.target.setAttribute('data-type', 'target-block'); break
-      case 'target-block': event.target.setAttribute('data-type', 'floor'); break
+      case 'target-block': event.target.setAttribute('data-type', 'target-player'); break
+      case 'target-player': event.target.setAttribute('data-type', 'floor'); break
     }
   }))
 }
@@ -287,6 +288,8 @@ const gridToText = () => {
         case 'block': text += 'B'; break
         case 'target': text += '.'; break
         case 'player': text += '&'; break
+        case 'target-block': text += 'X'; break
+        case 'target-player': text += '%'; break
       }
     }
     // if (wi + 1 < DATA.w) text += '\n'
