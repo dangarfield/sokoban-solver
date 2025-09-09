@@ -110,13 +110,39 @@
         .github-link:hover {
             color: #495057;
         }
+
+        .title-link {
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .title-link:hover {
+            color: #0d6efd;
+            text-decoration: underline;
+        }
+
+        /* Fix button spacing in footer when they wrap */
+        .footer .btn {
+            margin: 0.125rem;
+        }
+
+        /* Ensure buttons have proper spacing on small screens */
+        @media (max-width: 767.98px) {
+            .footer .col-auto {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.25rem;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 
 <body>
     <div class="header">
         <div class="container">
-            <h1 class="mb-0 fs-2">Sokoban Solver
+            <h1 class="mb-0 fs-2">
+                <span class="title-link" title="Click to refresh and clear URL parameters">Sokoban Solver</span>
                 <a href="https://github.com/dangarfield/sokoban-solver" class="github-link"
                     title="View source code on GitHub">
                     <i class="bi bi-github"></i>
@@ -132,27 +158,39 @@
     <div class="footer">
         <div class="container">
             <div class="buttons">
-                <form class="row gy-2 gx-3 align-items-center justify-content-center">
+                <form class="row gy-2 gx-2 align-items-center justify-content-center">
                     <div class="col-auto">
                         <select class="form-select load-select">
                         </select>
                     </div>
                     <div class="col-auto">
-                        <button type="button" class="btn btn-sm btn-primary new"><i class="bi bi-plus"></i></button>
-                        <button type="button" class="btn btn-sm btn-primary save"><i class="bi bi-save"></i></button>
-                        <button type="button" class="btn btn-sm btn-info export"><i class="bi bi-share"></i></button>
-                        <button type="button" class="btn btn-sm btn-warning left"><i
-                                class="bi bi-arrow-left"></i></button>
-                        <button type="button" class="btn btn-sm btn-warning up"><i class="bi bi-arrow-up"></i></button>
-                        <button type="button" class="btn btn-sm btn-warning down"><i
-                                class="bi bi-arrow-down"></i></button>
-                        <button type="button" class="btn btn-sm btn-warning right"><i
-                                class="bi bi-arrow-right"></i></button>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-primary new"><i class="bi bi-plus"></i></button>
+                            <button type="button" class="btn btn-sm btn-primary save"><i class="bi bi-save"></i></button>
+                            <button type="button" class="btn btn-sm btn-info export"><i class="bi bi-share"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-warning left"><i
+                                    class="bi bi-arrow-left"></i></button>
+                            <button type="button" class="btn btn-sm btn-warning up"><i class="bi bi-arrow-up"></i></button>
+                            <button type="button" class="btn btn-sm btn-warning down"><i
+                                    class="bi bi-arrow-down"></i></button>
+                            <button type="button" class="btn btn-sm btn-warning right"><i
+                                    class="bi bi-arrow-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-auto">
                         <button type="button" class="btn btn-sm btn-primary calc" disabled>Solver loading...</button>
-                        <button type="button" class="btn btn-sm btn-secondary prev d-none"><i
-                                class="bi bi-chevron-left"></i></button>
-                        <button type="button" class="btn btn-sm btn-secondary next d-none"><i
-                                class="bi bi-chevron-right"></i></button>
+                    </div>
+                    <div class="col-auto">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-secondary prev d-none"><i
+                                    class="bi bi-chevron-left"></i></button>
+                            <button type="button" class="btn btn-sm btn-secondary next d-none"><i
+                                    class="bi bi-chevron-right"></i></button>
+                        </div>
                     </div>
                 </form>
             </div>

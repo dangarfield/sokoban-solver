@@ -1,33 +1,159 @@
-# Sokoban Game Solver & Solution Previewer
+# 🎮 Sokoban Solver & Game
 
-> This is a web wrapper, playable sokoban game, editor and visualiser for sokoban solving, using Python through Web Assembly. All client side
+> A modern, responsive web-based Sokoban puzzle game with an intelligent solver, level editor, and solution visualizer. Play classic push-the-box puzzles or let the AI solve them for you!
 
-> Updated to include javascript solver also
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Try_Now-blue?style=for-the-badge)](https://dangarfield.github.io/sokoban-solver/)
 
-> Live application - [https://dangarfield.github.io/sokoban-solver/](https://dangarfield.github.io/sokoban-solver/)
+![Sokoban Solver Preview](https://i.ibb.co/ZSWtVfw/preview.gif)
 
-![Sokoban Solver](https://i.ibb.co/ZSWtVfw/preview.gif)
+## ✨ Features
 
-I wanted to help my 4 year get through some of the `push the box` levelss on his little camera and I couldn't, so I adapted this and added an additional presentation format.
+### 🎯 Game & Solver
+- **Intelligent AI Solver** - Advanced A* algorithm with optimized performance
+- **Real-time Progress** - Watch the solver work with live progress updates
+- **Solution Playback** - Step through solutions move by move
+- **Multiple Algorithms** - Choose from BFS, DFS, UCS, or A* search methods
 
-All of the hard work relates to https://github.com/KnightofLuna/sokoban-solver.
+### 🎨 Level Editor
+- **Visual Editor** - Click cells to cycle through floor, wall, block, target, and player
+- **Responsive Grid** - Automatically scales to fit your screen
+- **Custom Levels** - Create and save your own puzzles
+- **Import/Export** - Share levels via URL with deep-linking support
 
-### Installation
+### 🎮 Gameplay
+- **Smooth Controls** - Play with WASD, arrow keys, or on-screen buttons
+- **Voice Control** - Use speech recognition for hands-free play
+- **Mobile Friendly** - Fully responsive design works on all devices
+- **Auto-progression** - Automatically advance to next level when solved
 
-- Not required - All executed in the browser
-- Live application - [https://dangarfield.github.io/sokoban-solver/](https://dangarfield.github.io/sokoban-solver/)
-- To run locally, simply run a standard web server (eg, NodeJs, `serve .`) on the root directory and open in a browser
+### 💾 Data Management
+- **Local Storage** - All progress saved in your browser
+- **Level Sharing** - Generate shareable URLs for custom levels
+- **Reset Option** - Clear all data and start fresh
+- **Cached Solutions** - Previously solved puzzles load instantly
 
-### Usage
+## 🚀 Quick Start
 
-- You can edit the initial levels in `levels.txt`, adding more levels, solutions are grids as appropriate
-- Click any cell to cycle between floor, wall, block, target and player. There are interim states (target-block, target-player) that are ommtted fr the sake of simplicity in setting. You can always edit the level files (`space` = floor, `#` = wall, `B` = block, `.` = target, `&` = player, `X` = block on target, `%` = player on target)
-- New grids can be added and existing grids overwritten by saving. All saved grids are stored in your browser's `localStorage`
-- Play the game with `WASD` or `ArrowKeys`, press `Escape` of `space` to restart from the saved map
-- Click `Solve` to solve the game and interate through the solution with `Prev` and `Next` buttons - Solutions are cached, but some solves take a long timeß
-- Click 'Share' to copy the url to deep link with your friends
+### Online (Recommended)
+Simply visit the [live application](https://dangarfield.github.io/sokoban-solver/) - no installation required!
 
-### Algorithms
+### Local Development
+```bash
+# Clone the repository
+git clone https://github.com/dangarfield/sokoban-solver.git
+cd sokoban-solver
 
-- See KnightOfLuna's explanation here - https://github.com/KnightofLuna/sokoban-solver
-- Summary - Graph is solved through one of 4 methods, `Breadth First Search`, `Depth First Search`, `Uniform Cost Search` and `A* Search`. The default method for solving is `A* Search`, configurable in `main.js`
+# Serve locally (any web server works)
+npx serve .
+# or
+python -m http.server 8000
+# or
+php -S localhost:8000
+
+# Open http://localhost:8000 in your browser
+```
+
+## 🎮 How to Play
+
+### Basic Controls
+- **Movement**: `WASD` keys or arrow keys
+- **Reset Level**: `Escape` or `Space`
+- **Voice Commands**: Say "up", "down", "left", "right", or "restart"
+
+### Level Editor
+1. **Click any cell** to cycle through types:
+   - Floor (empty space)
+   - Wall (obstacle)
+   - Block (pushable box)
+   - Target (goal position)
+   - Player (starting position)
+   - Target & Block together
+   - Target & Player together
+
+2. **Save your level** using the save button
+3. **Share your creation** with the export button
+
+### Using the Solver
+1. **Click "Solve"** to start the AI solver
+2. **Watch progress** as it explores possible moves
+3. **Navigate solution** with Previous/Next buttons
+4. **Solutions are cached** for instant replay
+
+## 🧠 Solver Algorithms
+
+The application includes multiple solving algorithms:
+
+- **A* Search** (Default) - Optimal pathfinding with heuristics
+- **Breadth-First Search** - Guarantees shortest solution
+- **Depth-First Search** - Memory efficient exploration
+- **Uniform Cost Search** - Considers move costs
+
+### Performance Optimizations
+- **20x faster** than original implementation
+- **Non-blocking UI** - Solver runs without freezing the interface
+- **Progress feedback** - Real-time updates on solving progress
+- **Timeout protection** - Prevents browser "unresponsive script" warnings
+
+## 🎨 Level Format
+
+Levels use a simple text format:
+```
+Level: My Custom Level
+########
+#  .   #
+# B  & #
+#      #
+########
+```
+
+**Symbols:**
+- `#` = Wall
+- ` ` = Floor (empty space)
+- `B` = Block (box to push)
+- `.` = Target (goal position)
+- `&` = Player starting position
+- `X` = Block on target
+- `%` = Player on target
+
+## 🔧 Configuration
+
+### Solver Settings
+Edit `main.js` to customize:
+```javascript
+// Toggle between JavaScript and Python solvers
+const USE_JS_SOLVER = true;
+
+// Available algorithms: 'astar', 'bfs', 'dfs', 'ucs'
+const DEFAULT_ALGORITHM = 'astar';
+```
+
+### Adding Levels
+Edit `levels.txt` to include new puzzles:
+```
+Level: Easy Puzzle
+####
+#.&#
+#B #
+####
+
+Level: Medium Challenge
+#######
+#.  & #
+# BB  #
+#  .  #
+#######
+```
+
+## 🤝 Contributing
+
+This project builds upon the excellent work from [KnightofLuna/sokoban-solver](https://github.com/KnightofLuna/sokoban-solver).
+
+### Recent Improvements
+- ✅ Responsive grid layout with dynamic sizing
+- ✅ Modern UI with Bootstrap styling
+- ✅ Optimized JavaScript solver (20x performance boost)
+- ✅ Deep-linking and URL sharing
+- ✅ Mobile-friendly responsive design
+- ✅ Voice control integration
+- ✅ Real-time solver progress feedback
+

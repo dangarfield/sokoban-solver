@@ -13,37 +13,58 @@ const DATA = {
   current: ''
 }
 
+const resetSolverUI = () => {
+  // Reset solver UI to initial state
+  const calcButton = document.querySelector('.calc')
+  const prevButton = document.querySelector('.prev')
+  const nextButton = document.querySelector('.next')
+
+  // Show solve button, hide navigation buttons
+  calcButton.classList.remove('d-none')
+  prevButton.classList.add('d-none')
+  nextButton.classList.add('d-none')
+
+  // Reset button text and state
+  calcButton.removeAttribute('disabled')
+  calcButton.textContent = USE_JS_SOLVER ? 'Solve' : 'Solve (Python)'
+
+  // Clear solution data
+  DATA.solution.current = 0
+  DATA.solution.directions = ''
+  DATA.solution.states = []
+}
+
 const updateGridSize = () => {
   const grid = document.querySelector('.grid')
   const mainArea = document.querySelector('.main-area')
-  
+
   if (!mainArea) return
-  
+
   // Get the available space in the main area
   const mainAreaRect = mainArea.getBoundingClientRect()
-  const availableWidth = mainAreaRect.width - 40 // 40px for padding
-  const availableHeight = mainAreaRect.height - 40 // 40px for padding
-  
+  const availableWidth = mainAreaRect.width - 32 // 32px for padding
+  const availableHeight = mainAreaRect.height - 32 // 32px for padding
+
   // Calculate cell size based on both width and height constraints
   const cellSizeByWidth = Math.floor(availableWidth / DATA.w)
   const cellSizeByHeight = Math.floor(availableHeight / DATA.h)
-  
+
   // Use the smaller of the two to ensure the grid fits in both dimensions
   const cellSize = Math.min(cellSizeByWidth, cellSizeByHeight)
-  
+
   // Ensure minimum cell size
   const finalCellSize = Math.max(cellSize, 20)
-  
+
   const actualGridWidth = finalCellSize * DATA.w
   const actualGridHeight = finalCellSize * DATA.h
-  
+
   // Set the grid dimensions
   grid.style.width = `${actualGridWidth}px`
   grid.style.height = `${actualGridHeight}px`
-  
+
   // Update CSS custom property for cell size
   document.documentElement.style.setProperty('--cell-size', `${finalCellSize}px`)
-  
+
   console.log('Grid updated:', {
     availableWidth,
     availableHeight,
@@ -69,10 +90,10 @@ const setupInitialGrid = () => {
     }
     grid.appendChild(row)
   }
-  
+
   // Update grid sizing after creation with a small delay to ensure layout is settled
   setTimeout(updateGridSize, 10)
-  
+
   document.querySelectorAll('.cell').forEach(cell => cell.addEventListener('click', function (event) {
     const dataType = event.target.getAttribute('data-type')
     console.log('click', event.target, dataType)
@@ -86,9 +107,18 @@ const setupInitialGrid = () => {
       case 'target-block': event.target.setAttribute('data-type', 'target-player'); break
       case 'target-player': event.target.setAttribute('data-type', 'floor'); break
     }
+
+    // Reset solver UI when grid is modified
+    resetSolverUI()
   }))
 }
 const bindClicks = () => {
+  // Title click handler to refresh page and clear URL parameters
+  document.querySelector('.title-link').addEventListener('click', function (event) {
+    // Navigate to the base URL without any parameters
+    window.location.href = window.location.origin + window.location.pathname
+  })
+
   document.querySelector('.calc').addEventListener('click', function (event) {
     calculate()
   })
@@ -139,7 +169,25 @@ const bindClicks = () => {
 
   document.querySelector('.load-select').addEventListener('change', function (event) {
     console.log('.load-select change', event.target.value)
-    loadLevel(event.target.value)
+
+    if (event.target.value === '__RESET__') {
+      // Handle reset option
+      const confirmReset = window.confirm('This will delete all saved levels and reset the application. Are you sure?')
+      if (confirmReset) {
+        // Remove localStorage data
+        window.localStorage.removeItem('sok')
+        console.log('localStorage cleared')
+
+        // Refresh the page
+        window.location.reload()
+      } else {
+        // User cancelled, reset dropdown to current level
+        event.target.value = DATA.current
+      }
+    } else {
+      // Normal level selection
+      loadLevel(event.target.value)
+    }
   })
   document.addEventListener('keyup', function (e) {
     // console.log('e', e.key)
@@ -307,6 +355,14 @@ const importFromUrl = () => {
       option.innerText = level.name
       loadSelect.append(option)
     })
+
+    // Add reset option at the bottom
+    const resetOption = document.createElement('option')
+    resetOption.setAttribute('value', '__RESET__')
+    resetOption.innerText = '--- Reset All Data ---'
+    resetOption.style.color = '#dc3545' // Bootstrap danger color
+    resetOption.style.fontWeight = 'bold'
+    loadSelect.append(resetOption)
 
     // Update DATA with imported level
     DATA.current = name
@@ -499,7 +555,7 @@ const calculate = async () => {
 
     populateSolutionStates()
     calcButton.removeAttribute('disabled')
-    calcButton.textContent = USE_JS_SOLVER ? 'Solve (JS)' : 'Solve (Python)'
+    calcButton.textContent = USE_JS_SOLVER ? 'Solve' : 'Solve (Python)'
     calcButton.classList.add('d-none')
     document.querySelector('.prev').classList.remove('d-none')
     document.querySelector('.next').classList.remove('d-none')
@@ -516,12 +572,12 @@ const calculate = async () => {
     if (USE_JS_SOLVER) {
       // Use JavaScript solver with progress feedback
       console.log('Using JavaScript solver');
-      
+
       const progressCallback = (progress) => {
         const { explored, frontier, iterations, timeElapsed } = progress;
         calcButton.textContent = `Solving... ${timeElapsed}s (${explored} explored)`;
       };
-      
+
       solverPromise = solveSokoban('astar', gridText, progressCallback, 60000)
         .then(([solutionResult, timeStr]) => {
           console.log('JS solver result:', solutionResult, 'Time:', timeStr);
@@ -546,10 +602,10 @@ const calculate = async () => {
 
   } catch (error) {
     console.error('Solver error:', error);
-    
+
     if (error.message.includes('timeout')) {
       console.log('Solver timed out after 30 seconds');
-      window.alert('Calculation timed out after 30 seconds. This puzzle may be too complex or have no solution.');
+      window.alert('Calculation timed out after 60 seconds. This puzzle may be too complex or have no solution.');
       solution = 'timeout';
     } else {
       solution = 'x';
@@ -558,7 +614,7 @@ const calculate = async () => {
 
   // Reset button state
   calcButton.removeAttribute('disabled')
-  calcButton.textContent = USE_JS_SOLVER ? 'Solve (JS)' : 'Solve (Python)'
+  calcButton.textContent = USE_JS_SOLVER ? 'Solve' : 'Solve (Python)'
 
   if (solution === 'x') {
     window.alert('No solution found')
@@ -631,6 +687,14 @@ const loadLevelList = async () => {
     option.innerText = level.name
     loadSelect.append(option)
   })
+
+  // Add reset option at the bottom
+  const resetOption = document.createElement('option')
+  resetOption.setAttribute('value', '__RESET__')
+  resetOption.innerText = '--- Reset All Data ---'
+  resetOption.style.color = '#dc3545' // Bootstrap danger color
+  resetOption.style.fontWeight = 'bold'
+  loadSelect.append(resetOption)
 }
 const convertToDataType = (sign) => {
   switch (sign) {
@@ -666,7 +730,7 @@ const loadLevel = async (levelName) => {
   document.querySelector('.prev').classList.add('d-none')
   document.querySelector('.next').classList.add('d-none')
   document.querySelector('.calc').classList.remove('d-none')
-  
+
   // Ensure grid is properly sized after level is loaded
   setTimeout(updateGridSize, 10)
 }
@@ -708,7 +772,7 @@ const init = async () => {
   if (USE_JS_SOLVER) {
     console.log('Using JavaScript solver - no initialization needed');
     document.querySelector('.calc').removeAttribute('disabled')
-    document.querySelector('.calc').textContent = 'Solve (JS)'
+    document.querySelector('.calc').textContent = 'Solve'
   } else {
     console.log('Initializing Python solver...');
     DATA.solveSokodan = await initSolver()

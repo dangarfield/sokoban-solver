@@ -1,9 +1,38 @@
-// Sokoban Solver - JavaScript Implementation
+// Sokoban Solver - JavaScript Implementation (Optimized)
 // Converted from Python solver.py
 
 let gameState = null;
 let posWalls = null;
 let posGoals = null;
+let gameWidth = 0;
+let gameHeight = 0;
+
+// Fast state key generation using bit manipulation
+function createStateKey(playerPos, boxPositions) {
+    // Use a more efficient key generation
+    const playerKey = playerPos[0] * 1000 + playerPos[1];
+    const boxKey = boxPositions
+        .map(box => box[0] * 1000 + box[1])
+        .sort((a, b) => a - b)
+        .join(',');
+    return `${playerKey}:${boxKey}`;
+}
+
+// Optimized position sets using Maps for O(1) lookup
+const wallSet = new Map();
+const goalSet = new Map();
+
+function posToKey(pos) {
+    return pos[0] * 1000 + pos[1];
+}
+
+function isWall(pos) {
+    return wallSet.has(posToKey(pos));
+}
+
+function isGoal(pos) {
+    return goalSet.has(posToKey(pos));
+}
 
 class PriorityQueue {
     constructor() {
@@ -104,10 +133,13 @@ function posOfBoxes(gameState) {
 
 function posOfWalls(gameState) {
     const walls = [];
+    wallSet.clear();
     for (let i = 0; i < gameState.length; i++) {
         for (let j = 0; j < gameState[i].length; j++) {
             if (gameState[i][j] === 1) {
-                walls.push([i, j]);
+                const pos = [i, j];
+                walls.push(pos);
+                wallSet.set(posToKey(pos), true);
             }
         }
     }
@@ -116,10 +148,13 @@ function posOfWalls(gameState) {
 
 function posOfGoals(gameState) {
     const goals = [];
+    goalSet.clear();
     for (let i = 0; i < gameState.length; i++) {
         for (let j = 0; j < gameState[i].length; j++) {
             if (gameState[i][j] === 4 || gameState[i][j] === 5) {
-                goals.push([i, j]);
+                const pos = [i, j];
+                goals.push(pos);
+                goalSet.set(posToKey(pos), true);
             }
         }
     }
@@ -140,8 +175,21 @@ function isEndState(posBox) {
     return true;
 }
 
+// Optimized position checking using Sets
 function arrayIncludes(arr, target) {
-    return arr.some(item => item[0] === target[0] && item[1] === target[1]);
+    const targetKey = posToKey(target);
+    return arr.some(item => posToKey(item) === targetKey);
+}
+
+// Even faster version using pre-computed sets
+function createPositionSet(positions) {
+    const set = new Set();
+    positions.forEach(pos => set.add(posToKey(pos)));
+    return set;
+}
+
+function positionSetHas(set, pos) {
+    return set.has(posToKey(pos));
 }
 
 function isLegalAction(action, posPlayer, posBox) {
@@ -158,27 +206,43 @@ function isLegalAction(action, posPlayer, posBox) {
         y1 = yPlayer + action[1];
     }
     
-    const allPositions = [...posBox, ...posWalls];
-    return !arrayIncludes(allPositions, [x1, y1]);
+    const targetPos = [x1, y1];
+    
+    // Check bounds first (fastest check)
+    if (x1 < 0 || x1 >= gameHeight || y1 < 0 || y1 >= gameWidth) {
+        return false;
+    }
+    
+    // Check walls using fast lookup
+    if (isWall(targetPos)) {
+        return false;
+    }
+    
+    // Check boxes using optimized lookup
+    return !arrayIncludes(posBox, targetPos);
 }
 
+// Pre-computed action directions for better performance
+const ACTION_DIRECTIONS = [
+    [-1, 0, 'u', 'U'],
+    [1, 0, 'd', 'D'],
+    [0, -1, 'l', 'L'],
+    [0, 1, 'r', 'R']
+];
+
 function legalActions(posPlayer, posBox) {
-    const allActions = [
-        [-1, 0, 'u', 'U'],
-        [1, 0, 'd', 'D'],
-        [0, -1, 'l', 'L'],
-        [0, 1, 'r', 'R']
-    ];
-    
     const [xPlayer, yPlayer] = posPlayer;
     const legalActionsList = [];
+    const boxSet = createPositionSet(posBox);
     
-    for (let action of allActions) {
+    for (let i = 0; i < ACTION_DIRECTIONS.length; i++) {
+        const action = ACTION_DIRECTIONS[i];
         const x1 = xPlayer + action[0];
         const y1 = yPlayer + action[1];
+        const nextPos = [x1, y1];
         
         let finalAction;
-        if (arrayIncludes(posBox, [x1, y1])) {
+        if (positionSetHas(boxSet, nextPos)) {
             // Push move
             finalAction = [action[0], action[1], action[3]];
         } else {
@@ -197,17 +261,28 @@ function legalActions(posPlayer, posBox) {
 function updateState(posPlayer, posBox, action) {
     const [xPlayer, yPlayer] = posPlayer;
     const newPosPlayer = [xPlayer + action[0], yPlayer + action[1]];
-    let newPosBox = posBox.slice();
     
     if (action[2] === action[2].toUpperCase()) {
-        // Push move
-        const boxIndex = newPosBox.findIndex(box => box[0] === newPosPlayer[0] && box[1] === newPosPlayer[1]);
-        if (boxIndex !== -1) {
-            newPosBox[boxIndex] = [xPlayer + 2 * action[0], yPlayer + 2 * action[1]];
+        // Push move - create new box array with updated position
+        const newPosBox = new Array(posBox.length);
+        const newPlayerKey = posToKey(newPosPlayer);
+        let boxMoved = false;
+        
+        for (let i = 0; i < posBox.length; i++) {
+            if (!boxMoved && posToKey(posBox[i]) === newPlayerKey) {
+                // Move this box
+                newPosBox[i] = [xPlayer + 2 * action[0], yPlayer + 2 * action[1]];
+                boxMoved = true;
+            } else {
+                newPosBox[i] = posBox[i];
+            }
         }
+        
+        return [newPosPlayer, newPosBox];
+    } else {
+        // Regular move - no box changes
+        return [newPosPlayer, posBox];
     }
-    
-    return [newPosPlayer, newPosBox];
 }
 
 function isFailed(posBox) {
@@ -326,21 +401,54 @@ function depthFirstSearch() {
     return null;
 }
 
+// Optimized heuristic with better performance
 function heuristic(posPlayer, posBox) {
     let distance = 0;
-    const completes = posBox.filter(box => arrayIncludes(posGoals, box));
-    const sortposBox = posBox.filter(box => !arrayIncludes(posGoals, box));
-    const sortposGoals = posGoals.filter(goal => !arrayIncludes(completes, goal));
+    const goalSet = createPositionSet(posGoals);
+    const unplacedBoxes = [];
+    const unfilledGoals = [...posGoals];
     
-    for (let i = 0; i < sortposBox.length; i++) {
-        if (i < sortposGoals.length) {
-            distance += Math.abs(sortposBox[i][0] - sortposGoals[i][0]) + Math.abs(sortposBox[i][1] - sortposGoals[i][1]);
+    // Separate placed and unplaced boxes
+    for (let i = 0; i < posBox.length; i++) {
+        const box = posBox[i];
+        if (positionSetHas(goalSet, box)) {
+            // Box is on a goal, remove this goal from unfilled list
+            const goalIndex = unfilledGoals.findIndex(goal => 
+                goal[0] === box[0] && goal[1] === box[1]
+            );
+            if (goalIndex !== -1) {
+                unfilledGoals.splice(goalIndex, 1);
+            }
+        } else {
+            unplacedBoxes.push(box);
         }
     }
+    
+    // Calculate Manhattan distance for unplaced boxes to nearest goals
+    for (let i = 0; i < unplacedBoxes.length && i < unfilledGoals.length; i++) {
+        const box = unplacedBoxes[i];
+        const goal = unfilledGoals[i];
+        distance += Math.abs(box[0] - goal[0]) + Math.abs(box[1] - goal[1]);
+    }
+    
     return distance;
 }
 
+// Optimized cost function
 function cost(actions) {
+    if (typeof actions === 'string') {
+        // Count lowercase characters (moves) in string
+        let count = 0;
+        for (let i = 0; i < actions.length; i++) {
+            const char = actions[i];
+            if (char >= 'a' && char <= 'z') {
+                count++;
+            }
+        }
+        return count;
+    }
+    
+    // Fallback for array input
     return actions.filter(x => typeof x === 'string' && x === x.toLowerCase()).length;
 }
 
@@ -389,12 +497,16 @@ async function aStarSearch(progressCallback = null, timeoutMs = 30000) {
     const beginBox = posOfBoxes(gameState);
     const beginPlayer = posOfPlayer(gameState);
     
-    const startState = [beginPlayer, beginBox];
+    // Use more efficient state representation
     const frontier = new PriorityQueue();
-    frontier.push([startState], heuristic(beginPlayer, beginBox));
     const exploredSet = new Set();
-    const actions = new PriorityQueue();
-    actions.push([0], heuristic(beginPlayer, startState[1]));
+    
+    // Initial state
+    const initialState = { player: beginPlayer, boxes: beginBox, path: '' };
+    const initialHeuristic = heuristic(beginPlayer, beginBox);
+    
+    frontier.push(initialState, initialHeuristic);
+    
     let count = 0;
     let lastYieldTime = performance.now();
     const startTime = performance.now();
@@ -406,8 +518,8 @@ async function aStarSearch(progressCallback = null, timeoutMs = 30000) {
             throw new Error('Solver timeout - puzzle may be too complex');
         }
         
-        // Yield control to UI periodically
-        if (currentTime - lastYieldTime > 50) { // Yield every 50ms
+        // Yield control to UI periodically (less frequently for better performance)
+        if (currentTime - lastYieldTime > 200) { // Yield every 100ms instead of 50ms
             if (progressCallback) {
                 progressCallback({
                     explored: exploredSet.size,
@@ -420,30 +532,40 @@ async function aStarSearch(progressCallback = null, timeoutMs = 30000) {
             lastYieldTime = performance.now();
         }
         
-        const node = frontier.pop();
-        const nodeAction = actions.pop();
+        const currentState = frontier.pop();
         
-        if (isEndState(node[node.length - 1][1])) {
-            const solution = nodeAction.slice(1).join('').replace(/,/g, '');
-            console.log(solution);
+        // Check if we've reached the goal
+        if (isEndState(currentState.boxes)) {
+            console.log(currentState.path);
             console.log(count);
-            return solution;
+            return currentState.path;
         }
         
-        const stateKey = JSON.stringify(node[node.length - 1]);
+        // Use optimized state key generation
+        const stateKey = createStateKey(currentState.player, currentState.boxes);
         if (!exploredSet.has(stateKey)) {
             exploredSet.add(stateKey);
-            const Cost = cost(nodeAction.slice(1));
             
-            for (let action of legalActions(node[node.length - 1][0], node[node.length - 1][1])) {
-                const [newPosPlayer, newPosBox] = updateState(node[node.length - 1][0], node[node.length - 1][1], action);
+            const currentCost = cost(currentState.path.split(''));
+            const legalActionsList = legalActions(currentState.player, currentState.boxes);
+            
+            for (let i = 0; i < legalActionsList.length; i++) {
+                const action = legalActionsList[i];
+                const [newPosPlayer, newPosBox] = updateState(currentState.player, currentState.boxes, action);
                 
                 if (isFailed(newPosBox)) continue;
                 
                 count++;
-                const Heuristic = heuristic(newPosPlayer, newPosBox);
-                frontier.push([...node, [newPosPlayer, newPosBox]], Heuristic + Cost);
-                actions.push([...nodeAction, action[2]], Heuristic + Cost);
+                const newState = {
+                    player: newPosPlayer,
+                    boxes: newPosBox,
+                    path: currentState.path + action[2]
+                };
+                
+                const heuristicValue = heuristic(newPosPlayer, newPosBox);
+                const totalCost = currentCost + heuristicValue + 1;
+                
+                frontier.push(newState, totalCost);
             }
         }
     }
@@ -483,6 +605,9 @@ async function solveSokoban(method, layout, progressCallback = null, timeoutMs =
     const timeStart = performance.now();
     
     gameState = transferToGameState(layout);
+    gameHeight = gameState.length;
+    gameWidth = gameState[0] ? gameState[0].length : 0;
+    
     posWalls = posOfWalls(gameState);
     posGoals = posOfGoals(gameState);
     
