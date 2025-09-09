@@ -13,17 +13,60 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <style>
-        .cell {
-            width: 50px;
-            height: 50px;
-            background-size: 100%;
+        :root {
+            --cell-size: 50px;
         }
 
-        @media (max-width: 575.98px) {
-            .cell {
-                width: 42px;
-                height: 42px;
-            }
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            flex-shrink: 0;
+            text-align: center;
+        }
+
+        .main-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            overflow: hidden;
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-top: 1px solid #dee2e6;
+            flex-shrink: 0;
+        }
+
+        .grid {
+            display: inline-block;
+        }
+
+        .grid .row {
+            display: flex;
+            width: 100%;
+        }
+
+        .cell {
+            width: var(--cell-size);
+            height: var(--cell-size);
+            background-size: 100%;
+            flex-shrink: 0;
         }
 
         .cell[data-type="wall"] {
@@ -53,48 +96,65 @@
         .cell[data-type="target-block"] {
             background-image: url('img/green_hand.png'), url('img/crate.png');
         }
+
+        .header small {
+            font-size: 0.6rem;
+        }
+
+        .github-link {
+            color: #6c757d;
+            text-decoration: none;
+            margin-left: 0.5rem;
+        }
+
+        .github-link:hover {
+            color: #495057;
+        }
     </style>
 </head>
 
 <body>
+    <div class="header">
+        <div class="container">
+            <h1 class="mb-0 fs-2">Sokoban Solver
+                <a href="https://github.com/dangarfield/sokoban-solver" class="github-link"
+                    title="View source code on GitHub">
+                    <i class="bi bi-github"></i>
+                </a>
+            </h1>
+        </div>
+    </div>
 
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                <h1>Sokoban Solver</h1>
-                <p>Full details and source code at <br /><a
-                        href="https://github.com/dangarfield/sokoban-solver">github.com/dangarfield/sokoban-solver</a>
-                </p>
-                <div class="grid mt-3 mb-3"></div>
-                <div class="buttons">
-                    <form class="row gy-2 gx-3 align-items-center">
-                        <div class="col-auto">
-                            <select class="form-select load-select">
-                            </select>
-                        </div>
-                        <div class="col-auto">
-                            <button type="button" class="btn btn-sm btn-primary new"><i class="bi bi-plus"></i></button>
-                            <button type="button" class="btn btn-sm btn-primary save"><i
-                                    class="bi bi-save"></i></button>
-                            <button type="button" class="btn btn-sm btn-info export"><i
-                                    class="bi bi-share"></i></button>
-                            <button type="button" class="btn btn-sm btn-warning left"><i
-                                    class="bi bi-arrow-left"></i></button>
-                            <button type="button" class="btn btn-sm btn-warning up"><i
-                                    class="bi bi-arrow-up"></i></button>
-                            <button type="button" class="btn btn-sm btn-warning down"><i
-                                    class="bi bi-arrow-down"></i></button>
-                            <button type="button" class="btn btn-sm btn-warning right"><i
-                                    class="bi bi-arrow-right"></i></button>
-                            <button type="button" class="btn btn-sm btn-primary calc" disabled>Solver
-                                loading...</button>
-                            <button type="button" class="btn btn-sm btn-secondary prev d-none"><i
-                                    class="bi bi-chevron-left"></i></button>
-                            <button type="button" class="btn btn-sm btn-secondary next d-none"><i
-                                    class="bi bi-chevron-right"></i></button>
-                        </div>
-                    </form>
-                </div>
+    <div class="main-area">
+        <div class="grid"></div>
+    </div>
+
+    <div class="footer">
+        <div class="container">
+            <div class="buttons">
+                <form class="row gy-2 gx-3 align-items-center justify-content-center">
+                    <div class="col-auto">
+                        <select class="form-select load-select">
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-sm btn-primary new"><i class="bi bi-plus"></i></button>
+                        <button type="button" class="btn btn-sm btn-primary save"><i class="bi bi-save"></i></button>
+                        <button type="button" class="btn btn-sm btn-info export"><i class="bi bi-share"></i></button>
+                        <button type="button" class="btn btn-sm btn-warning left"><i
+                                class="bi bi-arrow-left"></i></button>
+                        <button type="button" class="btn btn-sm btn-warning up"><i class="bi bi-arrow-up"></i></button>
+                        <button type="button" class="btn btn-sm btn-warning down"><i
+                                class="bi bi-arrow-down"></i></button>
+                        <button type="button" class="btn btn-sm btn-warning right"><i
+                                class="bi bi-arrow-right"></i></button>
+                        <button type="button" class="btn btn-sm btn-primary calc" disabled>Solver loading...</button>
+                        <button type="button" class="btn btn-sm btn-secondary prev d-none"><i
+                                class="bi bi-chevron-left"></i></button>
+                        <button type="button" class="btn btn-sm btn-secondary next d-none"><i
+                                class="bi bi-chevron-right"></i></button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

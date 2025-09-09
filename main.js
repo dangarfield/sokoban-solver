@@ -13,6 +13,47 @@ const DATA = {
   current: ''
 }
 
+const updateGridSize = () => {
+  const grid = document.querySelector('.grid')
+  const mainArea = document.querySelector('.main-area')
+  
+  if (!mainArea) return
+  
+  // Get the available space in the main area
+  const mainAreaRect = mainArea.getBoundingClientRect()
+  const availableWidth = mainAreaRect.width - 40 // 40px for padding
+  const availableHeight = mainAreaRect.height - 40 // 40px for padding
+  
+  // Calculate cell size based on both width and height constraints
+  const cellSizeByWidth = Math.floor(availableWidth / DATA.w)
+  const cellSizeByHeight = Math.floor(availableHeight / DATA.h)
+  
+  // Use the smaller of the two to ensure the grid fits in both dimensions
+  const cellSize = Math.min(cellSizeByWidth, cellSizeByHeight)
+  
+  // Ensure minimum cell size
+  const finalCellSize = Math.max(cellSize, 20)
+  
+  const actualGridWidth = finalCellSize * DATA.w
+  const actualGridHeight = finalCellSize * DATA.h
+  
+  // Set the grid dimensions
+  grid.style.width = `${actualGridWidth}px`
+  grid.style.height = `${actualGridHeight}px`
+  
+  // Update CSS custom property for cell size
+  document.documentElement.style.setProperty('--cell-size', `${finalCellSize}px`)
+  
+  console.log('Grid updated:', {
+    availableWidth,
+    availableHeight,
+    cellSize: finalCellSize,
+    gridWidth: actualGridWidth,
+    gridHeight: actualGridHeight,
+    gridDimensions: `${DATA.w}x${DATA.h}`
+  })
+}
+
 const setupInitialGrid = () => {
   const grid = document.querySelector('.grid')
   grid.innerHTML = ''
@@ -28,6 +69,10 @@ const setupInitialGrid = () => {
     }
     grid.appendChild(row)
   }
+  
+  // Update grid sizing after creation with a small delay to ensure layout is settled
+  setTimeout(updateGridSize, 10)
+  
   document.querySelectorAll('.cell').forEach(cell => cell.addEventListener('click', function (event) {
     const dataType = event.target.getAttribute('data-type')
     console.log('click', event.target, dataType)
@@ -635,6 +680,9 @@ const loadLevel = async (levelName) => {
   document.querySelector('.prev').classList.add('d-none')
   document.querySelector('.next').classList.add('d-none')
   document.querySelector('.calc').classList.remove('d-none')
+  
+  // Ensure grid is properly sized after level is loaded
+  setTimeout(updateGridSize, 10)
 }
 const initSolver = async () => {
   const pyodide = await window.loadPyodide()
@@ -663,6 +711,13 @@ const init = async () => {
   }
 
   bindClicks()
+
+  // Add window resize listener to update grid size (debounced)
+  let resizeTimeout
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout)
+    resizeTimeout = setTimeout(updateGridSize, 100)
+  })
 
   if (USE_JS_SOLVER) {
     console.log('Using JavaScript solver - no initialization needed');
